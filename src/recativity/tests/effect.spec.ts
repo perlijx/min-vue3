@@ -2,11 +2,11 @@
  * @Author: perli 1003914407@qq.com
  * @Date: 2022-11-10 17:18:09
  * @LastEditors: perli 1003914407@qq.com
- * @LastEditTime: 2022-11-14 15:31:53
+ * @LastEditTime: 2022-11-17 17:02:17
  * @FilePath: /min-vue3/src/recativity/tests/effect.spec.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
-import { effect } from "../effect";
+import { effect,stop } from "../effect";
 import { reactive } from "../reactive"
 
 describe("effect",()=>{
@@ -56,5 +56,35 @@ describe("effect",()=>{
     expect(dummy).toBe(1)
     run()
     expect(dummy).toBe(2)
+  })
+
+  it("stop",()=>{
+    let dummy;
+    const obj=reactive(
+      {
+        prop:1
+      }
+    )
+    const runner=effect(()=>{
+      dummy=obj.prop
+    })
+    obj.prop=2
+    expect(dummy).toBe(2)
+    stop(runner)
+    obj.prop=3
+    expect(dummy).toBe(2)
+    runner()
+    expect(dummy).toBe(3)
+  })
+
+  it("onStop",()=>{
+    const obj = reactive({foo:1})
+    const onStop=jest.fn()
+    let dummy
+    const runner = effect(()=>{
+      dummy = obj.foo
+    },{onStop})
+    stop(runner)
+    expect(onStop).toHaveBeenCalledTimes(1)
   })
 })
