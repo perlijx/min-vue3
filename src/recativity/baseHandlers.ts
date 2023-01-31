@@ -2,21 +2,26 @@
  * @Author: perli 1003914407@qq.com
  * @Date: 2022-11-18 11:26:16
  * @LastEditors: perli 1003914407@qq.com
- * @LastEditTime: 2023-01-28 17:35:49
+ * @LastEditTime: 2023-01-31 15:10:47
  * @FilePath: /min-vue3/src/recativity/baseHandlers.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
+import { isObject } from '../../shared'
 import { track, trigger } from './effect'
+import { reactive, readOnly } from './reactive'
 const get =createGetter()
 const readOnlyGet=createGetter(true)
 const set =createSetter()
 function createGetter(isReadOnly = false) {
   return function get(target, key) {
-    const res = Reflect.get(target, key)
     if(key === "_v_isReactive"){
       return !isReadOnly
     }else if (key === "_v_isReadOnly"){
       return isReadOnly
+    }
+    const res = Reflect.get(target, key)
+    if(isObject(res)){
+      return isReadOnly? readOnly(res) : reactive(res)
     }
     if (!isReadOnly) {
       track(target, key)
